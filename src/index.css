@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global Styles from Stitch Design */
+body {
+  background-color: #0b1326;
+  color: #dae2fd;
+  font-family: 'Inter', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 100dvh;
+}
+
+/* Glass Card Effect */
+.glass-card {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Timer Glow Effect */
+.active-timer-glow {
+  box-shadow: inset 0 0 15px rgba(93, 230, 255, 0.2), 
+              0 0 20px rgba(93, 230, 255, 0.1);
+}
+
+/* Chart Gradient */
+.chart-gradient {
+  background: linear-gradient(180deg, rgba(192, 193, 255, 0.1) 0%, rgba(192, 193, 255, 0) 100%);
+}
+
+/* Material Symbols Default */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Scrollbar Hide */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Safe Area for Mobile */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 20px);
+}
