@@ -1,88 +1,36 @@
-import { useState, useRef, useEffect } from 'react'
-import { sendMessage, streamMessage, FREE_MODELS } from '../services/api'
+import { useRef, useEffect, useCallback } from 'react'
+import { FREE_MODELS } from '../services/api'
+import { useChat } from '../hooks/useChat'
 
 export default function Chat() {
-  const [messages, setMessages] = useState([])
-  const [input, setInput] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [selectedModel, setSelectedModel] = useState('deepseek-v4-flash-free')
-  const [showModelSelector, setShowModelSelector] = useState(false)
+  const {
+    messages,
+    input,
+    setInput,
+    isLoading,
+    selectedModel,
+    setSelectedModel,
+    showModelSelector,
+    setShowModelSelector,
+    handleSubmit,
+    clearHistory,
+    currentModel
+  } = useChat()
+
   const messagesEndRef = useRef(null)
 
-  // Auto-scroll para última mensagem
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // Mensagem de boas-vindas
-  useEffect(() => {
-    setMessages([{
-      id: 1,
-      role: 'assistant',
-      content: 'Olá! 👋 Sou seu assistente Micropass. Como posso ajudar você hoje?\n\nPosso ajudar com:\n• Quebrar tarefas em micro-passos\n• Criar planos de foco\n• Sugerir técnicas para ADHD\n• Motivação e produtividade',
-      timestamp: new Date()
-    }])
+  const formatTime = useCallback((timestamp) => {
+    return new Date(timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
   }, [])
 
-  const handleSubmit = async (e) => {
+  const onSubmit = useCallback((e) => {
     e.preventDefault()
-    if (!input.trim() || isLoading) return
-
-    const userMessage = {
-      id: Date.now(),
-      role: 'user',
-      content: input.trim(),
-      timestamp: new Date()
-    }
-
-    setMessages(prev => [...prev, userMessage])
-    setInput('')
-    setIsLoading(true)
-
-    try {
-      // Usar streaming para respostas em tempo real
-      let assistantContent = ''
-      const assistantMessage = {
-        id: Date.now() + 1,
-        role: 'assistant',
-        content: '',
-        timestamp: new Date()
-      }
-
-      setMessages(prev => [...prev, assistantMessage])
-
-      await streamMessage(
-        userMessage.content,
-        selectedModel,
-        messages.slice(-10), // Últimas 10 mensagens como contexto
-        (chunk) => {
-          assistantContent += chunk
-          setMessages(prev => prev.map(msg => 
-            msg.id === assistantMessage.id 
-              ? { ...msg, content: assistantContent }
-              : msg
-          ))
-        }
-      )
-    } catch (error) {
-      console.error('Erro:', error)
-      setMessages(prev => [...prev, {
-        id: Date.now() + 2,
-        role: 'assistant',
-        content: `❌ Erro: ${error.message}\n\nTente novamente ou selecione outro modelo.`,
-        timestamp: new Date(),
-        isError: true
-      }])
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const formatTime = (date) => {
-    return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-  }
-
-  const currentModel = FREE_MODELS[selectedModel]
+    handleSubmit()
+  }, [handleSubmit])
 
   return (
     <div className="flex flex-col h-[calc(100vh-120px)]">
@@ -173,7 +121,7 @@ export default function Chat() {
       </div>
 
       {/* Input */}
-      <form onSubmit={handleSubmit} className="p-4 border-t border-outline-variant">
+      <form onSubmit={onSubmit} className="p-4 border-t border-outline-variant">
         <div className="flex gap-2">
           <input
             type="text"
